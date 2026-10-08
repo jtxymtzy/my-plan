@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2F6B4F">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>人格魅力养成计划</title>
+<style>
+  :root {
+    --bg: #F6FAF7;
+    --card: #FFFFFF;
+    --accent: #2F6B4F;
+    --accent-2: #4A7C59;
+    --accent-soft: #E4EFE8;
+    --text: #1A2B22;
+    --muted: #6B7F74;
+    --line: #E2EBE5;
+    --warn: #B4553C;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei",
+                 "Hiragino Sans GB", "Noto Sans CJK SC", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    padding-bottom: 60px;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 16px; }
+
+  /* ---------- 顶部进度 ---------- */
+  header {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(246,250,247,.92);
+    backdrop-filter: saturate(180%) blur(12px);
+    -webkit-backdrop-filter: saturate(180%) blur(12px);
+    border-bottom: 1px solid var(--line);
+    padding: 14px 0 12px;
+  }
+  .hrow { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .day { font-size: 15px; color: var(--muted); }
+  .day b { font-size: 26px; color: var(--accent); font-weight: 700; margin-right: 2px; }
+  .phase-chip {
+    font-size: 13px; padding: 4px 12px; border-radius: 999px;
+    background: var(--accent-soft); color: var(--accent); font-weight: 600;
+    white-space: nowrap;
+  }
+  .bar {
+    margin-top: 10px; height: 7px; border-radius: 999px;
+    background: var(--accent-soft); overflow: hidden;
+  }
+  .bar > i {
+    display: block; height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--accent-2), var(--accent));
+    border-radius: 999px; transition: width .45s cubic-bezier(.4,0,.2,1);
+  }
+  .bartext { margin-top: 6px; font-size: 13px; color: var(--muted); }
+
+  /* ---------- 卡片 ---------- */
+  section.card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    margin-top: 16px;
+    overflow: hidden;
+  }
+  .cardhead {
+    padding: 16px 18px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .cardhead h2 {
+    margin: 0; font-size: 17px; font-weight: 700; letter-spacing: .01em;
+  }
+  .cardhead .sub { font-size: 13px; color: var(--muted); font-weight: 400; margin-left: 8px; }
+
+  /* ---------- 任务条目 ---------- */
+  .item {
+    display: flex; align-items: flex-start; gap: 13px;
+    padding: 14px 18px;
+    border-top: 1px solid var(--line);
+    cursor: pointer; user-select: none;
+    transition: background .18s ease;
+  }
+  .item:active { background: #F2F7F4; }
+  .item.done { background: #F4FAF6; }
+  .item .box {
+    flex: 0 0 24px; width: 24px; height: 24px; margin-top: 2px;
+    border: 2px solid #C6D5CC; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .18s cubic-bezier(.4,0,.2,1);
+  }
+  .item.done .box {
+    background: var(--accent); border-color: var(--accent);
+    transform: scale(1.02);
+  }
+  .item .box svg { opacity: 0; transform: scale(.5); transition: all .18s cubic-bezier(.34,1.56,.64,1); }
+  .item.done .box svg { opacity: 1; transform: scale(1); }
+  .item .body { flex: 1; min-width: 0; }
+  .item .label { font-size: 16px; font-weight: 500; transition: color .18s; }
+  .item.done .label { color: var(--muted); }
+  .item .hint { font-size: 13px; color: var(--muted); margin-top: 3px; line-height: 1.55; }
+  .item .tag {
+    display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 5px;
+    background: var(--accent-soft); color: var(--accent); font-weight: 600;
+    margin-left: 7px; vertical-align: 1px;
+  }
+
+  /* ---------- 统计 ---------- */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); }
+  .stat { background: var(--card); padding: 16px 8px; text-align: center; }
+  .stat b { display: block; font-size: 24px; color: var(--accent); font-weight: 700; line-height: 1.2; }
+  .stat span { font-size: 12px; color: var(--muted); }
+
+  /* ---------- 提示条 ---------- */
+  .note {
+    margin: 16px 0 0; padding: 13px 16px; border-radius: 12px;
+    background: var(--accent-soft); color: #24523C; font-size: 14px; line-height: 1.65;
+  }
+  .note.warn { background: #FBEFEB; color: var(--warn); }
+
+  /* ---------- 折叠区 ---------- */
+  details { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); margin-top: 16px; overflow: hidden; }
+  details > summary {
+    list-style: none; cursor: pointer; padding: 16px 18px;
+    font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: space-between;
+  }
+  details > summary::-webkit-details-marker { display: none; }
+  details > summary::after {
+    content: ""; width: 8px; height: 8px; border-right: 2px solid var(--muted);
+    border-bottom: 2px solid var(--muted); transform: rotate(45deg); margin-left: 10px;
+    transition: transform .22s ease; flex: 0 0 auto;
+  }
+  details[open] > summary::after { transform: rotate(-135deg); }
+  details .inner { padding: 0 18px 18px; font-size: 15px; color: #33463C; }
+  details .inner p { margin: 0 0 10px; }
+  details .inner ul { margin: 0 0 10px; padding-left: 20px; }
+  details .inner li { margin-bottom: 7px; }
+  details .inner b { color: var(--text); }
+  details .inner .hl { color: var(--accent); font-weight: 600; }
+  details + details { margin-top: 10px; }
+
+  footer {
+    text-align: center; font-size: 13px; color: var(--muted);
+    margin-top: 28px; padding: 0 16px;
+  }
+  footer button {
+    background: none; border: 1px solid var(--line); color: var(--muted);
+    font: inherit; font-size: 13px; padding: 8px 18px; border-radius: 10px;
+    cursor: pointer; margin-top: 12px;
+  }
+  footer button:active { background: var(--accent-soft); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="hrow">
+      <div class="day"><b id="dayNum">1</b>/ 90 天</div>
+      <div class="phase-chip" id="phaseChip">第一阶段 · 打地基</div>
+    </div>
+    <div class="bar"><i id="barFill"></i></div>
+    <div class="bartext" id="barText">本周完成 0 / 3</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="card" id="taskCard">
+    <div class="cardhead">
+      <h2>今天要做的事 <span class="sub" id="periodLabel"></span></h2>
+    </div>
+    <div id="taskList"></div>
+  </section>
+
+  <div class="note" id="tip"></div>
+
+  <section class="card">
+    <div class="cardhead"><h2>累计</h2></div>
+    <div class="stats">
+      <div class="stat"><b id="stExercise">0</b><span>出门运动（周）</span></div>
+      <div class="stat"><b id="stJournal">0</b><span>记录（天）</span></div>
+      <div class="stat"><b id="stNew">0</b><span>没做过的事</span></div>
+    </div>
+  </section>
+
+  <details>
+    <summary>写在前面 · 这份计划的逻辑</summary>
+    <div class="inner">
+      <p><b>这不是表演计划。</b>目标是把自己活成一个有内容的人，而不是学一套让人喜欢的技巧。</p>
+      <p class="hl">身体与情绪稳了 → 才有余力去经历 → 经历多了才有素材和判断 → 谈吐、反应、气场，是这些东西自己长出来的。</p>
+      <p>所以本计划不从"练谈吐"开始，从最底下那层开始。</p>
+      <p><b>三条规矩：</b></p>
+      <ul>
+        <li>一次只加一件事。同时改五件事的结果是五件都失败。</li>
+        <li>不追求连续，追求总次数。一个月做到三周就是成功。</li>
+        <li>断了不算失败，续上就行。</li>
+      </ul>
+      <p><b>预期管理：</b>前三个月你能感觉到的，主要是精力和情绪的变化，特质上的变化看不出来。别人开始觉得你"不太一样"要到半年到一年。被人用"有魅力"形容，那是两三年的事。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>如果断了</summary>
+    <div class="inner">
+      <p><b>断一天不算断，断三天才要处理。</b></p>
+      <p>连续断 3 天 → 回到「最低标准版」：只保留"出门"和"记录"两条，其他全部暂停，做满一周再恢复。</p>
+      <p><b>不追求连续，追求总次数。</b>一个月做到三周就是成功。追求"连续 90 天"的人，通常在第二周就全放弃了。</p>
+      <p>出差、赶项目、生病——这些时候主动降级，而不是硬扛到崩掉。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>不要做的事</summary>
+    <div class="inner">
+      <ul>
+        <li><b>不要同时加五件事。</b>一次一件。</li>
+        <li><b>不要先买装备。</b>球拍、徒步鞋都是你第三次去之后再考虑的事。</li>
+        <li><b>不要报班。</b>花钱买不到坚持。</li>
+        <li><b>不要告诉所有人你在改变。</b>一旦收到"你最近在改变啊"的认可，大脑会觉得已经完成了一部分，动力会下降。先做三个月，让结果自己说话。</li>
+        <li><b>不要期待三个月变成另一个人。</b>三个月能打好地基。特质的变化以年计。</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>每个动作怎么做（完整说明）</summary>
+    <div class="inner">
+      <p><b>A · 每周出门运动 1 次</b></p>
+      <ul>
+        <li>怎么找：小红书搜「你所在城市 + 羽毛球 散客」或「城市 + 周末徒步」；大众点评搜附近球馆，很多球馆页面挂着微信群二维码。</li>
+        <li>先当散客：一个人去，不用带朋友，不用自我介绍。散客场就是为这种需求设的。</li>
+        <li><b>最低标准：出门就算成功</b>，哪怕只是绕着走了 20 分钟。</li>
+        <li>常见错误：一上来定"每周三次"，两周后全停。</li>
+      </ul>
+      <p><b>B · 短视频砍到每天 30 分钟以内</b></p>
+      <ul>
+        <li>用手机自带的「屏幕使用时间」看真实数据，别靠感觉。</li>
+        <li>替代动作：床头放一本书，睡前刷手机的时段换成翻几页。</li>
+        <li>为什么排第二：谈吐和见识的原料是注意力，而短视频是专门偷注意力的东西。这条看着离"人格魅力"最远，其实最近。</li>
+      </ul>
+      <p><b>C · 固定起床时间</b></p>
+      <ul>
+        <li>固定<b>起床</b>，不是固定睡觉——睡觉你控制不了，起床你能。</li>
+        <li>工作日误差 1 小时以内，周末最多晚 1.5 小时。</li>
+        <li>作用：让情绪基线稳住。情绪不稳定八成是生理问题，不是心理问题。</li>
+      </ul>
+      <p><b>D · 每周做一件没做过的事</b></p>
+      <ul>
+        <li>不用是大事，关键在"没做过"：去一个没去过的区吃饭、参加一次陌生类型的活动、看一场展、试一个没玩过的运动。</li>
+        <li>作用："见识"不是信息量，是亲身经历过并且想明白了的东西。刷一百篇科普不会让你有见识。</li>
+      </ul>
+      <p><b>E · 每天记录 1–3 句</b></p>
+      <ul>
+        <li>记"今天见到的有意思的人 / 事 / 想法"，手机备忘录就够。</li>
+        <li>最低标准：每天一句，哪怕写"今天没啥"。</li>
+        <li>作用：风趣的谈吐本质是联想能力，而联想需要素材库。没有素材库的人只能背段子，一背就假。</li>
+      </ul>
+      <p><b>F · 每周一次深聊</b></p>
+      <ul>
+        <li>和一个人认真聊超过 30 分钟。可以是任何人：同事、朋友、家人、球场上刚认识的。</li>
+        <li>练习要点：<b>多问细节，少说"我也是"。</b>大部分人被问到细节时会对你产生好感，这不需要任何技巧。</li>
+      </ul>
+      <p><b>G · 「停一秒」</b></p>
+      <ul>
+        <li>别人说完话，别立刻接，停一秒再回。</li>
+        <li>效果：对方会觉得你在认真听、在想。这是所有社交技巧里最便宜有效的一个。</li>
+      </ul>
+      <p><b>H · 接触后复盘 1 分钟</b></p>
+      <ul>
+        <li>每次和人接触完，花一分钟想：刚才哪句话让对方反应变了？为什么？</li>
+        <li>作用：把经历变成能力。大部分人社交十年没进步，就是因为从不复盘。</li>
+      </ul>
+      <p><b>I · 每月一次输出</b></p>
+      <ul>
+        <li>写点什么发出去：技术文章、一段观察、一次心得。或者给别人讲一次。</li>
+        <li>作用：输出是把"知道"变成"是你的"的最快方式，而且会自然吸引同好。</li>
+      </ul>
+      <p><b>J · 每月形成自己的一个判断</b></p>
+      <ul>
+        <li>挑一个流行观点，想清楚：我认同哪几条？为什么？哪几条我觉得不对劲？</li>
+        <li>作用：边界感不是技巧，是"知道自己要什么"的自然结果。而它只能靠自己判断长出来。</li>
+      </ul>
+    </div>
+  </details>
+
+  <footer>
+    <div id="startInfo"></div>
+    <button id="resetBtn">重置全部进度</button>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var TOTAL_DAYS = 90;
+  var STORE_KEY = 'persona-plan-v1';
+
+  // ---- 动作定义：phase 决定何时解锁 ----
+  var ITEMS = [
+    { id: 'exercise', label: '出门运动 1 次',     type: 'weekly',  phase: 1, tag: '每周',
+      hint: '最低标准：出门就算成功，走 20 分钟也算' },
+    { id: 'nostroll', label: '短视频 ＜ 30 分钟', type: 'daily',   phase: 1, tag: '每天',
+      hint: '用屏幕使用时间看真实数据，别靠感觉' },
+    { id: 'wakeup',   label: '起床时间在范围内',   type: 'daily',   phase: 1, tag: '每天',
+      hint: '工作日误差 1 小时内，周末最多晚 1.5 小时' },
+
+    { id: 'newthing', label: '做 1 件没做过的事',  type: 'weekly',  phase: 2, tag: '每周',
+      hint: '去没去过的区、看一场展、试个新运动都算' },
+    { id: 'journal',  label: '记录 1–3 句',       type: 'daily',   phase: 2, tag: '每天',
+      hint: '最低：一句也算，写"今天没啥"也算' },
+    { id: 'talk',     label: '深聊 1 次',         type: 'weekly',  phase: 2, tag: '每周',
+      hint: '30 分钟以上。多问细节，少说"我也是"' },
+
+    { id: 'pause',    label: '「停一秒」练 3 次',  type: 'weekly',  phase: 3, tag: '每周',
+      hint: '别人说完，停一秒再接' },
+    { id: 'review',   label: '接触后复盘 3 次',    type: 'weekly',  phase: 3, tag: '每周',
+      hint: '每次 1 分钟：刚才哪句话让对方反应变了？' },
+    { id: 'output',   label: '输出 1 次',         type: 'monthly', phase: 3, tag: '每月',
+      hint: '写点什么发出去，或给别人讲一次' },
+    { id: 'judge',    label: '形成 1 个自己的判断', type: 'monthly', phase: 3, tag: '每月',
+      hint: '挑一个流行观点，想清楚你认不认同、为什么' }
+  ];
+
+  var PHASES = [
+    { n: 1, name: '第一阶段 · 打地基', days: [1, 28],  desc: '只做三件事。不社交、不学新技能、不改谈吐。' },
+    { n: 2, name: '第二阶段 · 攒内容', days: [29, 56], desc: '给脑子里装存货。前三个动作继续做。' },
+    { n: 3, name: '第三阶段 · 练手感', days: [57, 90], desc: '开始社交练习和输出。地基这时候应该已经有感觉了。' }
+  ];
+
+  // ---- 存储（file:// 下 localStorage 可能受限，降级到内存） ----
+  var mem = null;
+  function load() {
+    if (mem) return mem;
+    var raw = null;
+    try { raw = localStorage.getItem(STORE_KEY); } catch (e) { raw = null; }
+    if (raw) {
+      try { mem = JSON.parse(raw); } catch (e) { mem = null; }
+    }
+    if (!mem || typeof mem !== 'object') mem = { start: null, done: {} };
+    if (!mem.done) mem.done = {};
+    return mem;
+  }
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(mem)); } catch (e) { /* 静默降级 */ }
+  }
+
+  // ---- 周期键 ----
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function dayKey(d)   { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function monthKey(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1); }
+  function weekKey(d) {
+    var t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    var dn = t.getUTCDay() || 7;
+    t.setUTCDate(t.getUTCDate() + 4 - dn);
+    var ys = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+    var wk = Math.ceil((((t - ys) / 86400000) + 1) / 7);
+    return t.getUTCFullYear() + '-W' + pad(wk);
+  }
+  function periodKey(type, d) {
+    if (type === 'daily')   return dayKey(d);
+    if (type === 'weekly')  return weekKey(d);
+    return monthKey(d);
+  }
+  function periodName(type) {
+    return type === 'daily' ? '今天' : (type === 'weekly' ? '本周' : '本月');
+  }
+
+  // ---- 天数 / 阶段 ----
+  function today() { var d = new Date(); d.setHours(0, 0, 0, 0); return d; }
+  function dayIndex(start) {
+    var diff = Math.floor((today() - start) / 86400000) + 1;
+    return Math.max(1, diff);
+  }
+  function phaseOf(day) {
+    for (var i = 0; i < PHASES.length; i++) {
+      if (day >= PHASES[i].days[0] && day <= PHASES[i].days[1]) return PHASES[i];
+    }
+    return day > TOTAL_DAYS ? PHASES[2] : PHASES[0];
+  }
+
+  // ---- 状态查询 ----
+  function isDone(id, type, d) {
+    var s = load();
+    var arr = s.done[id];
+    return !!(arr && arr.indexOf(periodKey(type, d)) !== -1);
+  }
+  function toggle(id, type, d) {
+    var s = load();
+    var k = periodKey(type, d);
+    if (!s.done[id]) s.done[id] = [];
+    var i = s.done[id].indexOf(k);
+    if (i === -1) s.done[id].push(k); else s.done[id].splice(i, 1);
+    save();
+  }
+  function countPeriods(id, type) {
+    var s = load();
+    var arr = s.done[id];
+    return arr ? arr.length : 0;
+  }
+
+  // ---- 渲染 ----
+  var CHECK_SVG = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none">' +
+    '<path d="M2 7.2 L5.4 10.6 L12 3.4" stroke="#fff" stroke-width="2.4" ' +
+    'stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function render() {
+    var s = load();
+    var now = today();
+
+    if (!s.start) { s.start = dayKey(now); save(); }
+    var parts = s.start.split('-');
+    var start = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+    start.setHours(0, 0, 0, 0);
+
+    var day = dayIndex(start);
+    var ph = phaseOf(day);
+
+    // 顶部
+    document.getElementById('dayNum').textContent = Math.min(day, TOTAL_DAYS);
+    document.getElementById('phaseChip').textContent = ph.name;
+    document.getElementById('startInfo').textContent =
+      '开始于 ' + s.start + '　·　数据只存在这台设备的浏览器里';
+
+    // 任务列表
+    var list = document.getElementById('taskList');
+    list.innerHTML = '';
+    var visible = ITEMS.filter(function (it) { return it.phase <= ph.n; });
+
+    var weekTotal = 0, weekDone = 0;
+
+    visible.forEach(function (it) {
+      var done = isDone(it.id, it.type, now);
+      if (it.type === 'weekly') { weekTotal++; if (done) weekDone++; }
+
+      var el = document.createElement('div');
+      el.className = 'item' + (done ? ' done' : '');
+      el.innerHTML =
+        '<div class="box">' + CHECK_SVG + '</div>' +
+        '<div class="body">' +
+          '<div class="label">' + it.label +
+            '<span class="tag">' + it.tag + '</span></div>' +
+          '<div class="hint">' + it.hint + '</div>' +
+        '</div>';
+      el.addEventListener('click', function () {
+        toggle(it.id, it.type, now);
+        render();
+      });
+      list.appendChild(el);
+    });
+
+    // 进度条（以本周项目为准）
+    var pct = weekTotal ? Math.round(weekDone / weekTotal * 100) : 0;
+    document.getElementById('barFill').style.width = pct + '%';
+    document.getElementById('barText').textContent =
+      '本周完成 ' + weekDone + ' / ' + weekTotal + '　·　' + periodName('weekly') + '还剩 ' +
+      (7 - ((new Date().getDay() + 6) % 7)) + ' 天';
+    document.getElementById('periodLabel').textContent = '第 ' + ph.n + ' 阶段';
+
+    // 统计
+    document.getElementById('stExercise').textContent = countPeriods('exercise', 'weekly');
+    document.getElementById('stJournal').textContent  = countPeriods('journal', 'daily');
+    document.getElementById('stNew').textContent      = countPeriods('newthing', 'weekly');
+
+    // 提示条
+    var tip = document.getElementById('tip');
+    if (day > TOTAL_DAYS) {
+      tip.className = 'note';
+      tip.innerHTML = '<b>90 天走完了。</b>花十分钟回答四个问题：哪几条坚持下来了？身体和情绪有变化吗？认识了新的人吗？有没有哪一刻觉得自己和三个月前不一样？然后调整、重开一轮。';
+    } else if (weekDone === weekTotal && weekTotal > 0) {
+      tip.className = 'note';
+      tip.innerHTML = '<b>本周的都做完了。</b>剩下的时间不用补，做多了不加分。这是"总次数"不是"完美主义"。';
+    } else if (weekDone === 0) {
+      tip.className = 'note warn';
+      tip.innerHTML = '本周还一件都没做。别等"状态好的时候"——<b>最低标准就是为今天这种日子设的</b>：出门走 20 分钟也算，写一句话也算。';
+    } else {
+      tip.className = 'note';
+      tip.innerHTML = '状态差的时候只做<b>最低标准版</b>：出门 + 记录，其他都可以跳过。';
+    }
+  }
+
+  // ---- 重置 ----
+  document.getElementById('resetBtn').addEventListener('click', function () {
+    if (!confirm('清空所有勾选记录并重新从第 1 天开始？此操作无法撤销。')) return;
+    mem = { start: null, done: {} };
+    save();
+    render();
+  });
+
+  // 跨天自动刷新
+  var lastDay = dayKey(new Date());
+  setInterval(function () {
+    var k = dayKey(new Date());
+    if (k !== lastDay) { lastDay = k; render(); }
+  }, 60000);
+
+  render();
+})();
+</script>
+</body>
+</html>
